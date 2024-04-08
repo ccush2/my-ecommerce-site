@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./css/Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSearchChange = (e) => {
@@ -13,7 +14,7 @@ const Navbar = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    navigate(`/search?query=${searchQuery}`);
+    navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
   const toggleMenu = () => {
@@ -25,9 +26,11 @@ const Navbar = () => {
       <div className="navbar-logo">
         <Link to="/">ProductsPlus</Link>
       </div>
+
       <button className="menu-toggle" onClick={toggleMenu}>
         ☰
       </button>
+
       <ul className={`navbar-links ${isMenuVisible ? "active" : ""}`}>
         <li>
           <Link to="/" onClick={() => setIsMenuVisible(false)}>
@@ -48,16 +51,23 @@ const Navbar = () => {
           </Link>
         </li>
         <li>
-          <Link to="/category/men" onClick={() => setIsMenuVisible(false)}>
+          <Link
+            to="/category/men's%20clothing"
+            onClick={() => setIsMenuVisible(false)}
+          >
             Men's Clothing
           </Link>
         </li>
         <li>
-          <Link to="/category/women" onClick={() => setIsMenuVisible(false)}>
+          <Link
+            to="/category/women's%20clothing"
+            onClick={() => setIsMenuVisible(false)}
+          >
             Women's Clothing
           </Link>
         </li>
       </ul>
+
       <div className={`navbar-search ${isMenuVisible ? "active" : ""}`}>
         <form onSubmit={handleSearchSubmit} className="search-form">
           <input
@@ -72,13 +82,37 @@ const Navbar = () => {
           </button>
         </form>
       </div>
+
       <ul className="navbar-links navbar-links-right">
         <li>
-          <Link to="/cart">Cart</Link>
+          <Link to="/cart" className="cart-link">
+            Cart
+            {cartItemCount > 0 && (
+              <span className="cart-count">{cartItemCount}</span>
+            )}
+          </Link>
         </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
+        {!isLoggedIn ? (
+          <>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/signup">Signup</Link>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <span className="logged-in-user">
+                Welcome, {loggedInUser && loggedInUser.username}
+              </span>
+            </li>
+            <li>
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );
