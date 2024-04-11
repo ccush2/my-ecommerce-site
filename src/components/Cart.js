@@ -60,7 +60,11 @@ const Cart = ({ updateCartItemCount }) => {
     <div className="cart-container">
       <h2>Cart</h2>
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <div className="empty-cart">
+          <span className="empty-cart-icon">&#128722;</span>
+          <p>Your cart is empty.</p>
+          <Link to="/">Continue Shopping</Link>
+        </div>
       ) : (
         <>
           <ul className="cart-items">

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import bcrypt from "bcryptjs";
 import "./css/Signup.css";
 
 const Signup = ({ handleLogin }) => {
@@ -42,28 +41,15 @@ const Signup = ({ handleLogin }) => {
     e.preventDefault();
 
     try {
-      const response = await axios.get("http://localhost:3001/users");
-      const users = response.data;
-      const lastUserId = users.length > 0 ? users[users.length - 1].id : 0;
-      const newUserId = lastUserId + 1;
+      const response = await axios.post("http://localhost:3001/signup", {
+        email,
+        username,
+        password,
+        firstname,
+        lastname,
+      });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const createUserResponse = await axios.post(
-        "http://localhost:3001/users",
-        {
-          id: newUserId,
-          email,
-          username,
-          password: hashedPassword,
-          name: {
-            firstname,
-            lastname,
-          },
-        }
-      );
-
-      if (createUserResponse.status === 201) {
+      if (response.status === 201) {
         setSuccess("Signup successful. Please log in.");
         setError("");
         setTimeout(() => {

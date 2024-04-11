@@ -2,7 +2,7 @@ const jsonServer = require("json-server");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const server = jsonServer.create();
-const router = jsonServer.router("db.json");
+const router = jsonServer.router("./db.json");
 const middlewares = jsonServer.defaults();
 
 const SECRET_KEY = "Th1s1sAS3cr3tK3yF0rS1gn1ngJWTs";
@@ -48,27 +48,40 @@ server.post("/login", (req, res) => {
   });
 });
 
-server.use((req, res, next) => {
-  console.log("Received request:", req.method, req.path);
+server.post("/signup", (req, res) => {
+  const { email, username, password, firstname, lastname } = req.body;
+  const db = router.db;
+  const existingUser = db
+    .get("users")
+    .find((user) => user.username === username || user.email === email)
+    .value();
 
-  if (req.method === "POST") {
-    if (req.path === "/users") {
-      const { email, username } = req.body;
-      const db = router.db;
-      const existingUser = db
-        .get("users")
-        .find((user) => user.username === username || user.email === email)
-        .value();
-
-      if (existingUser) {
-        console.log("Username or email already exists");
-        return res
-          .status(400)
-          .json({ error: "Username or email already exists" });
-      }
-    }
+  if (existingUser) {
+    console.log("Username or email already exists");
+    return res.status(400).json({ error: "Username or email already exists" });
   }
-  next();
+
+  bcrypt.hash(password, 10, (err, hashedPassword) => {
+    if (err) {
+      console.error("Error during password hashing:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    const newUser = {
+      id: Date.now().toString(),
+      email,
+      username,
+      password: hashedPassword,
+      name: {
+        firstname,
+        lastname,
+      },
+    };
+
+    db.get("users").push(newUser).write();
+    console.log("New user created:", newUser);
+    res.status(201).json({ message: "User created successfully" });
+  });
 });
 
 server.use(router);
