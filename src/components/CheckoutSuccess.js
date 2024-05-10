@@ -1,8 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import "./css/CheckoutSuccess.css";
 
-const CheckoutSuccess = () => {
+/**
+ * CheckoutSuccess component displays a success message when the checkout process is completed.
+ * @param {Object} props - The component props.
+ * @param {function} props.updateCartItemCount - Function to update the cart item count.
+ */
+const CheckoutSuccess = ({ updateCartItemCount }) => {
+  /**
+   * Clears the user's cart in the database and updates the cart item count.
+   * This effect runs after the component mounts.
+   */
+  useEffect(() => {
+    const clearCart = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+          await axios.delete("/api/cart", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          updateCartItemCount();
+        }
+      } catch (error) {
+        alert("Error clearing cart. Please try again later.");
+      }
+    };
+
+    clearCart();
+  }, [updateCartItemCount]);
+
   return (
     <div className="checkout-success-container">
       <h2>Checkout Success</h2>

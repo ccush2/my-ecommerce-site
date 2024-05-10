@@ -3,6 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./css/Navbar.css";
 
+/**
+ * Navbar component renders the navigation bar with search functionality, cart, and user authentication links.
+ * @param {Object} props - The component props.
+ * @param {boolean} props.isLoggedIn - Indicates if the user is logged in.
+ * @param {function} props.handleLogout - Function to handle user logout.
+ * @param {Object} props.loggedInUser - The logged-in user object.
+ * @param {number} props.cartItemCount - The number of items in the user's cart.
+ */
 const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuVisible, setIsMenuVisible] = useState(false);
@@ -13,19 +21,28 @@ const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
 
   const navigate = useNavigate();
 
+  /**
+   * Fetches all products from the API and stores them in state.
+   * This effect runs only once when the component mounts.
+   */
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
         const response = await axios.get("https://fakestoreapi.com/products");
         setAllProducts(response.data);
       } catch (error) {
-        console.error("Error fetching all products:", error);
+        alert("Error fetching products. Please try again later.");
       }
     };
 
     fetchAllProducts();
   }, []);
 
+  /**
+   * Handles changes in the search input field.
+   * Updates the search query and filters the product suggestions based on the query.
+   * @param {Object} e - The input change event.
+   */
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -40,22 +57,40 @@ const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
     }
   };
 
+  /**
+   * Handles the search form submission.
+   * Navigates to the search results page with the current search query.
+   * @param {Object} e - The form submission event.
+   */
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
     setSuggestions([]);
   };
 
+  /**
+   * Handles the click on a search suggestion.
+   * Updates the search query and navigates to the product details page.
+   * @param {Object} suggestion - The clicked product suggestion object.
+   */
   const handleSuggestionClick = (suggestion) => {
     setSearchQuery(suggestion.title);
     navigate(`/product/${suggestion.id}`);
     setSuggestions([]);
   };
 
+  /**
+   * Toggles the visibility of the navigation menu for small screens.
+   */
   const toggleMenu = () => {
     setIsMenuVisible(!isMenuVisible);
   };
 
+  /**
+   * Handles clicks outside the search input and suggestions.
+   * Clears the search suggestions when the user clicks outside.
+   * @param {Object} event - The click event.
+   */
   const handleClickOutside = (event) => {
     if (
       searchInputRef.current &&
@@ -67,6 +102,10 @@ const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
     }
   };
 
+  /**
+   * Adds an event listener for clicks outside the search input and suggestions.
+   * Removes the event listener when the component unmounts.
+   */
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -149,15 +188,21 @@ const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
         </form>
       </div>
 
-      <ul className="navbar-links navbar-links-right">
-        <li>
-          <Link to="/cart" className="cart-link">
-            Cart
-            {cartItemCount > 0 && (
-              <span className="cart-count">{cartItemCount}</span>
-            )}
-          </Link>
-        </li>
+      <ul
+        className={`navbar-links navbar-links-right ${
+          isMenuVisible ? "active" : ""
+        }`}
+      >
+        {isLoggedIn && (
+          <li>
+            <Link to="/cart" className="cart-link">
+              Cart
+              {cartItemCount > 0 && (
+                <span className="cart-count">{cartItemCount}</span>
+              )}
+            </Link>
+          </li>
+        )}
         {!isLoggedIn ? (
           <>
             <li>
@@ -170,9 +215,9 @@ const Navbar = ({ isLoggedIn, handleLogout, loggedInUser, cartItemCount }) => {
         ) : (
           <>
             <li>
-              <span className="logged-in-user">
+              <Link to="/profile" className="profile-link">
                 Welcome, {loggedInUser && loggedInUser.username}
-              </span>
+              </Link>
             </li>
             <li>
               <button onClick={handleLogout}>Logout</button>

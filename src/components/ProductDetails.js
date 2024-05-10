@@ -3,11 +3,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./css/ProductDetails.css";
 
+/**
+ * ProductDetails component displays the details of a selected product.
+ * @param {Object} props - The component props.
+ * @param {function} props.updateCartItemCount - Function to update the cart item count.
+ */
 const ProductDetails = ({ updateCartItemCount }) => {
   const [product, setProduct] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
 
+  /**
+   * Fetches the product details from the API when the component mounts.
+   */
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -16,34 +25,40 @@ const ProductDetails = ({ updateCartItemCount }) => {
         );
         setProduct(response.data);
       } catch (error) {
-        console.error("Error fetching product:", error);
+        setErrorMessage(
+          "Failed to fetch product details. Please try again later."
+        );
       }
     };
 
     fetchProduct();
   }, [id]);
 
-  const addToCart = () => {
+  /**
+   * Adds the product to the user's cart.
+   */
+  const addToCart = async () => {
     const token = localStorage.getItem("authToken");
 
     if (token) {
-      const storedCartItems = localStorage.getItem("cartItems");
-      let cartItems = [];
-
-      if (storedCartItems) {
-        cartItems = JSON.parse(storedCartItems);
+      try {
+        await axios.post(
+          "/api/cart",
+          {
+            productId: product.id,
+            quantity: 1,
+            title: product.title,
+            price: product.price,
+            image: product.image,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        updateCartItemCount();
+      } catch (error) {
+        setErrorMessage("Failed to add item to cart. Please try again later.");
       }
-
-      const existingItem = cartItems.find((item) => item.id === product.id);
-
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cartItems.push({ ...product, quantity: 1 });
-      }
-
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-      updateCartItemCount();
     } else {
       navigate("/login");
     }
@@ -55,6 +70,7 @@ const ProductDetails = ({ updateCartItemCount }) => {
 
   return (
     <div className="product-details">
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className="product-image">
         <img src={product.image} alt={product.title} />
       </div>

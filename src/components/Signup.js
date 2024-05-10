@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./css/Signup.css";
 
+/**
+ * Signup component handles user registration functionality.
+ * @param {Object} props - The component props.
+ * @param {function} props.handleLogin - Function to handle successful login after signup.
+ */
 const Signup = ({ handleLogin }) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -12,31 +16,66 @@ const Signup = ({ handleLogin }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const navigate = useNavigate();
+  /**
+   * Validates the input value based on specified rules.
+   * @param {string} input - The input value to be validated.
+   * @param {string} fieldName - The name of the input field.
+   * @returns {string} The validated input value.
+   */
+  const validateInput = (input, fieldName) => {
+    const minLength = 3;
+    const maxLength = 20;
+    const allowedCharacters = /^[a-zA-Z0-9@.]*$/;
 
+    if (input.length < minLength || input.length > maxLength) {
+      setError(
+        `${fieldName} must be between ${minLength} and ${maxLength} characters long.`
+      );
+      return input;
+    }
+
+    if (!allowedCharacters.test(input)) {
+      setError(
+        `${fieldName} can only contain alphanumeric characters, @ and .`
+      );
+      return input;
+    }
+
+    setError("");
+    return input.replace(/[^a-zA-Z0-9@.]/g, "");
+  };
+
+  /**
+   * Handles input changes in the form fields.
+   * @param {Object} e - The input change event.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     switch (name) {
       case "email":
-        setEmail(value);
+        setEmail(validateInput(value, "Email"));
         break;
       case "username":
-        setUsername(value);
+        setUsername(validateInput(value, "Username"));
         break;
       case "password":
-        setPassword(value);
+        setPassword(validateInput(value, "Password"));
         break;
       case "firstname":
-        setFirstname(value);
+        setFirstname(validateInput(value, "First Name"));
         break;
       case "lastname":
-        setLastname(value);
+        setLastname(validateInput(value, "Last Name"));
         break;
       default:
         break;
     }
   };
 
+  /**
+   * Handles the form submission for user registration.
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -50,18 +89,15 @@ const Signup = ({ handleLogin }) => {
       });
 
       if (response.status === 201) {
-        setSuccess("Signup successful. Please log in.");
+        setSuccess("Signup successful. Logging in...");
         setError("");
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+        handleLogin(response.data.user);
       } else {
         setError("Signup failed. Please try again.");
         setSuccess("");
       }
     } catch (error) {
-      setError("Signup failed. Please try again.");
-      setSuccess("");
+      setError("Signup failed. Please try again later.");
     }
 
     setEmail("");

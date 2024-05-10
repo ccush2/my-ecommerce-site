@@ -1,80 +1,88 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import CheckoutForm from "./CheckoutForm";
 import "./css/Checkout.css";
 
+const stripePromise = loadStripe(
+  "pk_test_51P6zb0RqzXc9w0BmGtGog3cxbPnLBmlGDSV9TG3Vo37tJt3Cf5u3nEo5bzHqc8UyeGf7AP96GkgFbN62JXmUzpIV00HdDOsOBI"
+);
+
+/**
+ * Checkout component handles the checkout process using Stripe.
+ */
 const Checkout = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  /**
+   * Fetches the client secret from the server when the component mounts.
+   */
   useEffect(() => {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
       navigate("/login");
+    } else {
+      fetch("http://localhost:3001/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then((data) => setClientSecret(data.clientSecret))
+        .catch(() => {
+          setErrorMessage(
+            "Error setting up the payment. Please try again later."
+          );
+        });
     }
   }, [navigate]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  /**
+   * Stripe appearance options.
+   */
+  const appearance = {
+    theme: "stripe",
+  };
 
-    const token = localStorage.getItem("authToken");
+  /**
+   * Stripe Elements options.
+   */
+  const options = {
+    clientSecret,
+    appearance,
+  };
 
-    if (token) {
+  /**
+   * Handles the payment result.
+   * @param {Object} result - The payment result from Stripe.
+   */
+  const handlePaymentResult = (result) => {
+    if (result.error) {
+      navigate("/checkout-error");
+    } else {
       localStorage.removeItem("cartItems");
       navigate("/checkout-success");
-    } else {
-      navigate("/login");
     }
   };
 
   return (
     <div className="checkout-container">
       <h2>Checkout</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="address">Address:</label>
-          <textarea
-            id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          ></textarea>
-        </div>
-        <div className="form-group">
-          <label htmlFor="cardNumber">Card Number:</label>
-          <input
-            type="text"
-            id="cardNumber"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Place Order</button>
-      </form>
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {clientSecret && (
+        <Elements options={options} stripe={stripePromise}>
+          <CheckoutForm onPaymentResult={handlePaymentResult} />
+        </Elements>
+      )}
     </div>
   );
 };

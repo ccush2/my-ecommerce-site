@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./css/Login.css";
 
+/**
+ * Login component handles user authentication and login functionality.
+ * @param {Object} props - The component props.
+ * @param {function} props.handleLogin - Function to handle successful login.
+ */
 const Login = ({ handleLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -10,21 +15,52 @@ const Login = ({ handleLogin }) => {
 
   const navigate = useNavigate();
 
+  /**
+   * Validates the input value based on specified rules.
+   * @param {string} input - The input value to be validated.
+   * @param {string} fieldName - The name of the input field.
+   * @returns {string} The validated input value.
+   */
+  const validateInput = (input, fieldName) => {
+    const minLength = 3;
+    const maxLength = 20;
+    const allowedCharacters = /^[a-zA-Z0-9]*$/;
+
+    if (input.length < minLength || input.length > maxLength) {
+      setError(
+        `${fieldName} must be between ${minLength} and ${maxLength} characters long.`
+      );
+      return input;
+    }
+
+    if (!allowedCharacters.test(input)) {
+      setError(`${fieldName} can only contain alphanumeric characters.`);
+      return input;
+    }
+
+    setError("");
+    return input.replace(/[^a-zA-Z0-9]/g, "");
+  };
+
+  /**
+   * Handles input changes in the username and password fields.
+   * @param {Object} e - The input change event.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "username") {
-      setUsername(value);
+      setUsername(validateInput(value, "Username"));
     } else if (name === "password") {
-      setPassword(value);
+      setPassword(validateInput(value, "Password"));
     }
   };
 
+  /**
+   * Handles the form submission for login.
+   * @param {Object} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log("Login form submitted");
-    console.log("Username:", username);
-    console.log("Password:", password);
 
     try {
       const response = await axios.post("http://localhost:3001/login", {
@@ -32,32 +68,22 @@ const Login = ({ handleLogin }) => {
         password,
       });
 
-      console.log("Login response:", response);
-
       if (response.status === 200) {
-        const { token } = response.data;
+        const { token, id, username } = response.data;
         localStorage.setItem("authToken", token);
-        console.log("Token stored in local storage:", token);
 
-        handleLogin({ username });
-        console.log("handleLogin function called with username:", username);
-
+        handleLogin({ id, username });
         navigate("/");
-        console.log("Navigated to home page");
       } else {
         setError("Invalid username or password");
-        console.log("Login failed with status:", response.status);
       }
     } catch (error) {
       setError("Login failed. Please try again.");
-      console.error("Login error:", error);
     }
 
     setUsername("");
     setPassword("");
   };
-
-  console.log("Rendering Login component");
 
   return (
     <div className="login-container">

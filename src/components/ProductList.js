@@ -4,25 +4,29 @@ import axios from "axios";
 import "./css/ProductList.css";
 
 /**
- * ProductList component displays a list of products based on the selected category or search query.
+ * ProductList component displays a list of products.
+ * It supports filtering by category and search query, as well as pagination.
  */
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
 
-  // Get the current location and search params
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get("query") || "";
 
-  // Get the category name from URL params
   const { categoryName } = useParams();
 
+  /**
+   * Fetches products from the API based on the category name.
+   * This effect runs whenever the category name changes.
+   */
   useEffect(() => {
-    /**
-     * Fetches products from the API based on the selected category.
-     */
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
         let url = "https://fakestoreapi.com/products";
         if (categoryName) {
@@ -31,17 +35,19 @@ const ProductList = () => {
         const response = await axios.get(url);
         setProducts(response.data);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        alert("Error fetching products. Please try again later.");
       }
+      setIsLoading(false);
     };
 
     fetchProducts();
   }, [categoryName]);
 
+  /**
+   * Filters the products based on the search query.
+   * This effect runs whenever the products or search query changes.
+   */
   useEffect(() => {
-    /**
-     * Filters products based on the search query.
-     */
     let filtered = products;
     if (searchQuery) {
       filtered = products.filter((product) =>
@@ -51,11 +57,25 @@ const ProductList = () => {
     setFilteredProducts(filtered);
   }, [products, searchQuery]);
 
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const totalProducts = filteredProducts.length;
+  const hasMultiplePages = totalProducts > productsPerPage;
+
   return (
     <div>
       <div className="product-list">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
+        {isLoading ? (
+          <p>Loading...</p>
+        ) : currentProducts.length > 0 ? (
+          currentProducts.map((product) => (
             <div key={product.id} className="product-item">
               <Link to={`/product/${product.id}`}>
                 <img src={product.image} alt={product.title} />
@@ -68,6 +88,24 @@ const ProductList = () => {
           <p>No products found.</p>
         )}
       </div>
+      {hasMultiplePages && (
+        <div className="pagination">
+          <button
+            onClick={() => paginate(1)}
+            disabled={currentPage === 1}
+            className={currentPage === 1 ? "active" : ""}
+          >
+            Page 1
+          </button>
+          <button
+            onClick={() => paginate(2)}
+            disabled={currentPage === 2}
+            className={currentPage === 2 ? "active" : ""}
+          >
+            Page 2
+          </button>
+        </div>
+      )}
     </div>
   );
 };
