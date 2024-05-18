@@ -2,12 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./css/Signup.css";
 
-/**
- * Signup component handles user registration functionality.
- * @param {Object} props - The component props.
- * @param {function} props.handleLogin - Function to handle successful login after signup.
- */
-const Signup = ({ handleLogin }) => {
+const Signup = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,12 +11,6 @@ const Signup = ({ handleLogin }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  /**
-   * Validates the input value based on specified rules.
-   * @param {string} input - The input value to be validated.
-   * @param {string} fieldName - The name of the input field.
-   * @returns {string} The validated input value.
-   */
   const validateInput = (input, fieldName) => {
     const minLength = 3;
     const maxLength = 20;
@@ -45,10 +34,6 @@ const Signup = ({ handleLogin }) => {
     return input.replace(/[^a-zA-Z0-9@.]/g, "");
   };
 
-  /**
-   * Handles input changes in the form fields.
-   * @param {Object} e - The input change event.
-   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     switch (name) {
@@ -72,10 +57,6 @@ const Signup = ({ handleLogin }) => {
     }
   };
 
-  /**
-   * Handles the form submission for user registration.
-   * @param {Object} e - The form submission event.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -89,15 +70,18 @@ const Signup = ({ handleLogin }) => {
       });
 
       if (response.status === 201) {
-        setSuccess("Signup successful. Logging in...");
+        setSuccess("Signup successful. Please log in.");
         setError("");
-        handleLogin(response.data.user);
       } else {
         setError("Signup failed. Please try again.");
         setSuccess("");
       }
     } catch (error) {
-      setError("Signup failed. Please try again later.");
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(error.response.data.error);
+      } else {
+        setError("Signup failed. Please try again later.");
+      }
     }
 
     setEmail("");
