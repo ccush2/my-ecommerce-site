@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act } from "react-dom/test-utils";
 import App from "../src/App";
 import "@testing-library/jest-dom";
 import axios from "axios";
@@ -10,10 +11,17 @@ describe("App component", () => {
   beforeEach(() => {
     localStorage.clear();
     jest.clearAllMocks();
+    jest.spyOn(window, "alert").mockImplementation(() => {});
   });
 
-  test("renders Navbar component", () => {
-    render(<App />);
+  afterEach(() => {
+    window.alert.mockRestore();
+  });
+
+  test("renders Navbar component", async () => {
+    await act(async () => {
+      render(<App />);
+    });
     const navbarElement = screen.getByRole("navigation");
     expect(navbarElement).toBeInTheDocument();
   });
@@ -22,17 +30,23 @@ describe("App component", () => {
     const user = { id: 1, username: "testuser", token: "mockToken" };
     axios.post.mockResolvedValueOnce({ data: user });
 
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
-    fireEvent.click(screen.getByText("Login"));
+    await act(async () => {
+      fireEvent.click(screen.getByText("Login"));
+    });
 
     const usernameInput = screen.getByLabelText("Username:");
     const passwordInput = screen.getByLabelText("Password:");
     const loginButton = screen.getByRole("button", { name: "Login" });
 
-    fireEvent.change(usernameInput, { target: { value: "testuser" } });
-    fireEvent.change(passwordInput, { target: { value: "password" } });
-    fireEvent.click(loginButton);
+    await act(async () => {
+      fireEvent.change(usernameInput, { target: { value: "testuser" } });
+      fireEvent.change(passwordInput, { target: { value: "password" } });
+      fireEvent.click(loginButton);
+    });
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith("http://localhost:3001/login", {
@@ -46,10 +60,14 @@ describe("App component", () => {
     localStorage.setItem("authToken", "mockToken");
     axios.post.mockResolvedValueOnce({ data: {} });
 
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
-    const logoutButton = screen.getByText("Logout");
-    fireEvent.click(logoutButton);
+    await act(async () => {
+      const logoutButton = screen.getByText("Logout");
+      fireEvent.click(logoutButton);
+    });
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
