@@ -1,6 +1,6 @@
 # ProductsPlus - E-commerce Website
 
-ProductsPlus is an e-commerce website that allows users to browse and purchase products online. The website is deployed and can be accessed at [URL].
+ProductsPlus is an e-commerce website that allows users to browse and purchase products online. The website is deployed and can be accessed at https://my-ecommerce-site-d5at.onrender.com.
 
 ## Description
 
