@@ -25,6 +25,7 @@ const Cart = ({ updateCartItemCount }) => {
             headers: { Authorization: `Bearer ${token}` },
           });
           setCartItems(response.data);
+          setErrorMessage("");
         } else {
           setCartItems([]);
         }

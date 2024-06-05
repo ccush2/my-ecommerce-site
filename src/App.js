@@ -28,7 +28,7 @@ function App() {
    */
   const handleLogin = (user) => {
     setIsLoggedIn(true);
-    setLoggedInUser({ id: user.id, username: user.username });
+    setLoggedInUser(user);
   };
 
   /**
@@ -98,9 +98,26 @@ function App() {
     if (token) {
       setIsLoggedIn(true);
       fetchLoggedInUser(token);
+    } else {
+      setIsLoggedIn(false);
+      setLoggedInUser(null);
     }
     updateCartItemCount();
   }, []);
+
+  const refreshLoggedInUser = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (token && loggedInUser && loggedInUser.id) {
+        const response = await axios.get(`/api/users/${loggedInUser.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setLoggedInUser(response.data);
+      }
+    } catch (error) {
+      setErrorMessage("Failed to refresh logged-in user. Please try again.");
+    }
+  };
 
   /**
    * Fetches the logged-in user's information from the server.
@@ -134,7 +151,10 @@ function App() {
           <Route
             path="/product/:id"
             element={
-              <ProductDetails updateCartItemCount={updateCartItemCount} />
+              <ProductDetails
+                updateCartItemCount={updateCartItemCount}
+                loggedInUser={loggedInUser}
+              />
             }
           />
           <Route path="/login" element={<Login handleLogin={handleLogin} />} />
@@ -160,7 +180,11 @@ function App() {
           <Route
             path="/checkout-success"
             element={
-              <CheckoutSuccess updateCartItemCount={updateCartItemCount} />
+              <CheckoutSuccess
+                updateCartItemCount={updateCartItemCount}
+                loggedInUser={loggedInUser}
+                refreshLoggedInUser={refreshLoggedInUser}
+              />
             }
           />
           <Route path="/checkout-error" element={<CheckoutError />} />

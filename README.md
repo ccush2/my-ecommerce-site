@@ -65,6 +65,19 @@ The tests cover various components and functionality of the application, includi
 9. Upon successful payment, the user is redirected to the order confirmation page.
 10. User can log in or create an account to view their profile and manage their account details.
 
+## Mock Payment Instructions
+
+CVC: Any 3 digits for all test cards.
+Expiration Date: Any future date for all test cards.
+Test Card Numbers:
+
+- Successful payment: 4242-4242-4242-4242
+- Incorrect number decline: 4242-4242-4242-4241
+- Generic decline: 4000-0000-0000-0002
+- Insufficient funds decline: 4000-0000-0000-9995
+- Expired card decline: 4000-0000-0000-0069
+- Incorrect CVC decline: 4000-0000-0000-0127
+
 ## API Integration
 
 ProductsPlus integrates with the Fake Store API (https://fakestoreapi.com/) and a custom API.

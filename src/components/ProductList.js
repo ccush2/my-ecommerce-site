@@ -70,7 +70,7 @@ const ProductList = () => {
   const hasMultiplePages = totalProducts > productsPerPage;
 
   return (
-    <div>
+    <div data-testid="product-list">
       <div className="product-list">
         {isLoading ? (
           <p>Loading...</p>
