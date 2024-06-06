@@ -234,9 +234,12 @@ describe("Cart component", () => {
     });
 
     expect(axios.delete).toHaveBeenCalledTimes(1);
-    expect(axios.delete).toHaveBeenCalledWith("/api/cart", {
-      headers: { Authorization: `Bearer mockToken` },
-    });
+    expect(axios.delete).toHaveBeenCalledWith(
+      "https://users-server-2wv1.onrender.com/api/cart",
+      {
+        headers: { Authorization: `Bearer mockToken` },
+      }
+    );
 
     await waitFor(() => {
       expect(screen.getByText("Your cart is empty.")).toBeInTheDocument();

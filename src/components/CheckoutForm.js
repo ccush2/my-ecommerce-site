@@ -29,14 +29,17 @@ const CheckoutForm = () => {
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
+      redirect: "if_required",
     });
 
     if (error) {
       setMessage(error.message);
-    } else {
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
       navigate("/checkout-success");
+    } else {
+      setMessage("An unexpected error occurred.");
     }
 
     setIsLoading(false);

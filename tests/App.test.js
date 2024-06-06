@@ -49,10 +49,13 @@ describe("App component", () => {
     });
 
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith("http://localhost:3001/login", {
-        username: "testuser",
-        password: "password",
-      });
+      expect(axios.post).toHaveBeenCalledWith(
+        "https://users-server-2wv1.onrender.com/login",
+        {
+          username: "testuser",
+          password: "password",
+        }
+      );
     });
   });
 
@@ -71,7 +74,7 @@ describe("App component", () => {
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
-        "/logout",
+        "https://users-server-2wv1.onrender.com/logout",
         null,
         expect.any(Object)
       );
