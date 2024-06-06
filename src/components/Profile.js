@@ -23,9 +23,12 @@ const Profile = ({ loggedInUser, handleLogout, updateLoggedInUser }) => {
       try {
         const token = localStorage.getItem("authToken");
         if (token && loggedInUser) {
-          const response = await axios.get(`/api/users/${loggedInUser.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await axios.get(
+            `https://users-server-2wv1.onrender.com/api/users/${loggedInUser.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           setUserProfile(response.data);
         }
       } catch (error) {
@@ -44,9 +47,12 @@ const Profile = ({ loggedInUser, handleLogout, updateLoggedInUser }) => {
     try {
       const token = localStorage.getItem("authToken");
       if (token && loggedInUser) {
-        await axios.delete(`/api/users/${loggedInUser.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.delete(
+          `https://users-server-2wv1.onrender.com/api/users/${loggedInUser.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         handleLogout();
         updateLoggedInUser(null);
         localStorage.removeItem("authToken");

@@ -1,10 +1,19 @@
 # ProductsPlus - E-commerce Website
 
-ProductsPlus is an e-commerce website that allows users to browse and purchase products online. The website is deployed and can be accessed at https://my-ecommerce-site-d5at.onrender.com
+ProductsPlus is an e-commerce website that allows users to browse and purchase products online. The website is deployed and can be accessed at https://my-ecommerce-site-besu.onrender.com
 
 ## Description
 
 ProductsPlus is a full-featured e-commerce platform that provides a seamless shopping experience for users. It offers a wide range of products across different categories, including electronics, jewelry, men's clothing, and women's clothing. Users can easily browse products, view detailed product information, add items to their cart, and securely complete the checkout process using Stripe payment integration.
+
+## Installation
+
+1. Clone this repository or download the code.
+2. Install required dependencies by running `npm install` in the project directory.
+
+## Running the Application
+
+1. Start the application by running `npm start` in the project directory.
 
 ## Features
 

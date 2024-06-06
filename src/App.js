@@ -38,11 +38,15 @@ function App() {
     try {
       const token = localStorage.getItem("authToken");
       if (token) {
-        await axios.post("/logout", null, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await axios.post(
+          "https://users-server-2wv1.onrender.com/logout",
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         setIsLoggedIn(false);
         setLoggedInUser(null);
@@ -71,9 +75,12 @@ function App() {
     try {
       const token = localStorage.getItem("authToken");
       if (token) {
-        const response = await axios.get("/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "https://users-server-2wv1.onrender.com/api/cart",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const cartItems = response.data;
         const totalItems = cartItems.reduce(
           (total, item) => total + item.quantity,
@@ -109,9 +116,12 @@ function App() {
     try {
       const token = localStorage.getItem("authToken");
       if (token && loggedInUser && loggedInUser.id) {
-        const response = await axios.get(`/api/users/${loggedInUser.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          `https://users-server-2wv1.onrender.com/api/users/${loggedInUser.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setLoggedInUser(response.data);
       }
     } catch (error) {
@@ -125,9 +135,12 @@ function App() {
    */
   const fetchLoggedInUser = async (token) => {
     try {
-      const response = await axios.get("/api/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://users-server-2wv1.onrender.com/api/user",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setLoggedInUser(response.data);
     } catch (error) {
       setErrorMessage("Failed to fetch logged-in user. Please try again.");

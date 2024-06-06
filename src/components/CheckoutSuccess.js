@@ -23,9 +23,12 @@ const CheckoutSuccess = ({
       try {
         const token = localStorage.getItem("authToken");
         if (token) {
-          await axios.delete("/api/cart", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await axios.delete(
+            "https://users-server-2wv1.onrender.com/api/cart",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           updateCartItemCount();
           refreshLoggedInUser();
         }

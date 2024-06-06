@@ -21,9 +21,12 @@ const Cart = ({ updateCartItemCount }) => {
       try {
         const token = localStorage.getItem("authToken");
         if (token) {
-          const response = await axios.get("/api/cart", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await axios.get(
+            "https://users-server-2wv1.onrender.com/api/cart",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           setCartItems(response.data);
           setErrorMessage("");
         } else {
@@ -48,7 +51,7 @@ const Cart = ({ updateCartItemCount }) => {
       const token = localStorage.getItem("authToken");
       if (token) {
         const response = await axios.put(
-          `/api/cart/${productId}`,
+          `https://users-server-2wv1.onrender.com/api/cart/${productId}`,
           { quantity },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -68,12 +71,18 @@ const Cart = ({ updateCartItemCount }) => {
     try {
       const token = localStorage.getItem("authToken");
       if (token) {
-        await axios.delete(`/api/cart/${productId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const response = await axios.get("/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.delete(
+          `https://users-server-2wv1.onrender.com/api/cart/${productId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const response = await axios.get(
+          "https://users-server-2wv1.onrender.com/api/cart",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setCartItems(response.data);
         updateCartItemCount();
       }
@@ -89,7 +98,7 @@ const Cart = ({ updateCartItemCount }) => {
     try {
       const token = localStorage.getItem("authToken");
       if (token) {
-        await axios.delete("/api/cart", {
+        await axios.delete("https://users-server-2wv1.onrender.com/api/cart", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCartItems([]);

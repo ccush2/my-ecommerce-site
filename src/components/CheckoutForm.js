@@ -30,7 +30,7 @@ const CheckoutForm = () => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: "http://localhost:3000/checkout-success",
+        return_url: "https://users-server-2wv1.onrender.com/checkout-success",
       },
     });
 

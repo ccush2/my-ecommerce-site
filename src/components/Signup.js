@@ -61,13 +61,16 @@ const Signup = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:3001/signup", {
-        email,
-        username,
-        password,
-        firstname,
-        lastname,
-      });
+      const response = await axios.post(
+        "https://users-server-2wv1.onrender.com/signup",
+        {
+          email,
+          username,
+          password,
+          firstname,
+          lastname,
+        }
+      );
 
       if (response.status === 201) {
         setSuccess("Signup successful. Please log in.");

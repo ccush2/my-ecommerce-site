@@ -43,7 +43,7 @@ const ProductDetails = ({ updateCartItemCount }) => {
     if (token) {
       try {
         await axios.post(
-          "/api/cart",
+          "https://users-server-2wv1.onrender.com/api/cart",
           {
             productId: product.id,
             quantity: 1,
